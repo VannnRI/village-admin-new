@@ -1,0 +1,57 @@
+@extends('layouts.app')
+
+@section('title', 'Dashboard Masyarakat')
+
+@section('sidebar')
+    @include('masyarakat.partials.sidebar')
+@endsection
+
+@section('content')
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Selamat Datang, {{ $citizen->name ?? '-' }}</h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-user text-green-600 mr-2"></i>
+                Informasi Pribadi
+            </h3>
+            <div class="space-y-2">
+                <p><span class="font-medium">Nama:</span> {{ $citizen->name ?? '-' }}</p>
+                <p><span class="font-medium">NIK:</span> {{ $citizen->nik ?? '-' }}</p>
+                <p><span class="font-medium">No KK:</span> {{ $citizen->kk_number ?? '-' }}</p>
+                <p><span class="font-medium">Alamat:</span> {{ $citizen->address ?? '-' }}</p>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-home text-green-600 mr-2"></i>
+                Informasi Desa
+            </h3>
+            <div class="space-y-2">
+                <p><span class="font-medium">Nama Desa:</span> {{ $village->name ?? '-' }}</p>
+                <p><span class="font-medium">Kecamatan:</span> {{ $village->district ?? '-' }}</p>
+                <p><span class="font-medium">Kabupaten:</span> {{ $village->regency ?? '-' }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="{{ route('masyarakat.letter-form') }}" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-4 text-center transition duration-200">
+            <i class="fas fa-envelope-open text-2xl mb-2"></i>
+            <div class="font-semibold">Ajukan Surat</div>
+        </a>
+        
+        <a href="{{ route('masyarakat.letters.status') }}" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-4 text-center transition duration-200">
+            <i class="fas fa-list text-2xl mb-2"></i>
+            <div class="font-semibold">Status Surat</div>
+        </a>
+        
+        <a href="{{ route('masyarakat.profile') }}" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-4 text-center transition duration-200">
+            <i class="fas fa-user text-2xl mb-2"></i>
+            <div class="font-semibold">Profil</div>
+        </a>
+    </div>
+</div>
+@endsection 
