@@ -44,19 +44,29 @@ class MasyarakatController extends Controller
         $citizen = $user->citizen;
         $village = $citizen ? $citizen->village : null;
         $letterTypes = LetterType::where('is_active', 1)->get();
+        $resubmitRequest = null;
         $selectedTypeId = $request->letter_type_id;
         $fields = collect();
         $citizenFields = [
             'nik', 'kk_number', 'name', 'birth_place', 'birth_date', 'address', 'phone', 'email',
             'gender', 'religion', 'marital_status', 'education', 'job', 'nationality'
         ];
+        if ($request->resubmit_id) {
+            $resubmitRequest = LetterRequest::where('citizen_id', $citizen->id)
+                ->where('id', $request->resubmit_id)
+                ->where('status', 'rejected')
+                ->first();
+            if ($resubmitRequest) {
+                $selectedTypeId = $resubmitRequest->letter_type_id;
+            }
+        }
         if ($village && $selectedTypeId) {
             $fields = LetterField::where('village_id', $village->id)
                 ->where('letter_type_id', $selectedTypeId)
                 ->orderBy('order')
                 ->get();
         }
-        return view('masyarakat.letter-form', compact('citizen', 'village', 'letterTypes', 'fields', 'selectedTypeId', 'citizenFields'));
+        return view('masyarakat.letter-form', compact('citizen', 'village', 'letterTypes', 'fields', 'selectedTypeId', 'citizenFields', 'resubmitRequest'));
     }
 
     public function submitLetter(Request $request)
@@ -169,5 +179,35 @@ class MasyarakatController extends Controller
 
         $citizen->update($validated);
         return redirect()->route('masyarakat.profile')->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    public function resubmitLetter($id)
+    {
+        $user = Auth::user();
+        $citizen = $user->citizen;
+        $oldRequest = LetterRequest::where('citizen_id', $citizen->id)
+            ->where('id', $id)
+            ->where('status', 'rejected')
+            ->firstOrFail();
+
+        // Generate nomor urut per desa per tahun
+        $currentYear = date('Y');
+        $nomorUrut = LetterRequest::where('village_id', $oldRequest->village_id)
+            ->whereYear('created_at', $currentYear)
+            ->count() + 1;
+
+        // Generate new request number
+        $requestNumber = 'REQ-' . date('Ymd') . '-' . str_pad(LetterRequest::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+
+        $newRequest = $oldRequest->replicate();
+        $newRequest->status = 'pending';
+        $newRequest->request_number = $requestNumber;
+        $newRequest->nomor_urut = $nomorUrut;
+        $newRequest->notes = null;
+        $newRequest->created_at = now();
+        $newRequest->updated_at = now();
+        $newRequest->save();
+
+        return redirect()->route('masyarakat.letters.status')->with('success', 'Permohonan surat berhasil diajukan ulang. Silakan cek status surat Anda.');
     }
 } 

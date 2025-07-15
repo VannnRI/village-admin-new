@@ -59,6 +59,7 @@ Route::middleware(['auth', 'admin.desa'])->prefix('admin-desa')->name('admin-des
     
     // Letter Requests
     Route::get('letter-requests', [AdminDesaController::class, 'letterRequests'])->name('letter-requests.index');
+    Route::get('letter-requests/{id}', [AdminDesaController::class, 'showLetterRequest'])->name('letter-requests.show');
     
     // Letter Templates
     Route::resource('letter-templates', LetterTemplateController::class);
@@ -81,7 +82,7 @@ Route::middleware(['auth', 'admin.desa'])->prefix('admin-desa')->name('admin-des
     Route::get('government-structure', [AdminDesaController::class, 'governmentStructure'])->name('government-structure');
     Route::post('government-structure', [AdminDesaController::class, 'updateGovernmentStructure'])->name('government-structure.update');
 
-    Route::get('/letter-requests/{id}/download', [\App\Http\Controllers\AdminDesa\LetterTemplateController::class, 'downloadLetter'])->name('admin-desa.letter-requests.download');
+    Route::get('/letter-requests/{id}/download', [\App\Http\Controllers\AdminDesa\LetterTemplateController::class, 'downloadLetter'])->name('letter-requests.download');
 });
 
 // Perangkat Desa Routes
@@ -103,4 +104,5 @@ Route::middleware(['auth', 'masyarakat'])->prefix('masyarakat')->name('masyaraka
     Route::post('/letters/submit', [MasyarakatController::class, 'submitLetter'])->name('letters.submit');
     Route::get('/letters/status', [MasyarakatController::class, 'lettersStatus'])->name('letters.status');
     Route::get('/letters/{id}/download', [MasyarakatController::class, 'downloadLetter'])->name('letters.download');
+    Route::post('/letters/resubmit/{id}', [MasyarakatController::class, 'resubmitLetter'])->name('letters.resubmit');
 });

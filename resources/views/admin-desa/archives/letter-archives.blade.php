@@ -92,51 +92,27 @@
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="border-b border-gray-200">
             <nav class="-mb-px flex space-x-8 px-6">
-                <a href="#" class="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600">
-                    Semua ({{ $letterRequests->count() }})
-                </a>
-                <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    Pending ({{ $pendingLetters->count() }})
-                </a>
-                <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    Disetujui ({{ $approvedLetters->count() }})
-                </a>
-                <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    Ditolak ({{ $rejectedLetters->count() }})
-                </a>
-                <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    Selesai ({{ $completedLetters->count() }})
-                </a>
+                <a href="?status=&q={{ request('q') }}" class="border-b-2 {{ request('status')=='' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Semua ({{ $allLetterRequests->count() }})</a>
+                <a href="?status=pending&q={{ request('q') }}" class="border-b-2 {{ request('status')=='pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Pending ({{ $pendingLetters->count() }})</a>
+                <a href="?status=approved&q={{ request('q') }}" class="border-b-2 {{ request('status')=='approved' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Disetujui ({{ $approvedLetters->count() }})</a>
+                <a href="?status=rejected&q={{ request('q') }}" class="border-b-2 {{ request('status')=='rejected' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Ditolak ({{ $rejectedLetters->count() }})</a>
+                <a href="?status=completed&q={{ request('q') }}" class="border-b-2 {{ request('status')=='completed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Selesai ({{ $completedLetters->count() }})</a>
             </nav>
         </div>
     </div>
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
-                <input type="text" placeholder="Cari nama pemohon atau jenis surat..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama pemohon, jenis surat, atau tujuan..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="flex gap-2">
-                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Semua Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Disetujui</option>
-                    <option value="rejected">Ditolak</option>
-                    <option value="completed">Selesai</option>
-                </select>
-                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Semua Jenis Surat</option>
-                    <option value="1">Surat Keterangan Domisili</option>
-                    <option value="2">Surat Keterangan Usaha</option>
-                    <option value="3">Surat Pengantar KTP</option>
-                </select>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                    <i class="fas fa-search mr-2"></i>
-                    Cari
-                </button>
-            </div>
-        </div>
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">
+                <i class="fas fa-search mr-2"></i>
+                Cari
+            </button>
+        </form>
     </div>
 
     <!-- Letters Table -->
@@ -156,19 +132,15 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody>
                     @forelse($letterRequests as $request)
-                    <tr class="hover:bg-gray-50">
+                    <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ $request->citizen->name ?? 'N/A' }}</div>
-                            <div class="text-sm text-gray-500">{{ $request->citizen->nik ?? 'N/A' }}</div>
+                            <div class="font-semibold">{{ $request->applicant_name }}</div>
+                            <div class="text-xs text-gray-500">{{ $request->applicant_nik }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $request->letterType->name ?? 'N/A' }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($request->created_at)->format('d/m/Y H:i') }}
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $request->letterType->name ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $request->created_at ? $request->created_at->format('d/m/Y H:i') : '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                                 @if($request->status == 'pending') bg-yellow-100 text-yellow-800
@@ -186,32 +158,35 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900">
-                            <div class="max-w-xs truncate">{{ $request->notes ?? '-' }}</div>
+                            <div class="max-w-xs truncate">{{ $request->purpose ?? '-' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('admin-desa.letter-requests.show', $request->id) }}" class="text-blue-600 hover:text-blue-900" title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="#" class="text-green-600 hover:text-green-900">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="text-yellow-600 hover:text-yellow-900">
-                                    <i class="fas fa-print"></i>
-                                </a>
-                                <a href="#" class="text-purple-600 hover:text-purple-900">
+                                @if($request->status == 'approved')
+                                <a href="{{ route('admin-desa.letter-requests.download', $request->id) }}" class="text-purple-600 hover:text-purple-900" title="Download">
                                     <i class="fas fa-download"></i>
                                 </a>
+                                @endif
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            @if(request('q') && $totalLetterRequests > 0)
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                <p>Tidak ditemukan pengajuan surat sesuai pencarian.</p>
+                            </div>
+                            @else
                             <div class="flex flex-col items-center">
                                 <i class="fas fa-envelope text-4xl text-gray-300 mb-2"></i>
                                 <p>Belum ada pengajuan surat</p>
                             </div>
+                            @endif
                         </td>
                     </tr>
                     @endforelse

@@ -62,25 +62,23 @@
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
-                <input type="text" placeholder="Cari dokumen..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari dokumen..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="flex gap-2">
-                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Semua Kategori</option>
-                    <option value="peraturan">Peraturan</option>
-                    <option value="keuangan">Keuangan</option>
-                    <option value="laporan">Laporan</option>
-                    <option value="surat">Surat</option>
-                    <option value="lainnya">Lainnya</option>
-                </select>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                    <i class="fas fa-search mr-2"></i>
-                    Cari
-                </button>
-            </div>
-        </div>
+            <select name="category" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Semua Kategori</option>
+                <option value="peraturan" {{ request('category')=='peraturan' ? 'selected' : '' }}>Peraturan</option>
+                <option value="keuangan" {{ request('category')=='keuangan' ? 'selected' : '' }}>Keuangan</option>
+                <option value="laporan" {{ request('category')=='laporan' ? 'selected' : '' }}>Laporan</option>
+                <option value="surat" {{ request('category')=='surat' ? 'selected' : '' }}>Surat</option>
+                <option value="lainnya" {{ request('category')=='lainnya' ? 'selected' : '' }}>Lainnya</option>
+            </select>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">
+                <i class="fas fa-search mr-2"></i>
+                Cari
+            </button>
+        </form>
     </div>
 
     <!-- Documents List -->
@@ -151,7 +149,14 @@
                     @empty
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            @if(request('q') || request('category'))
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                <p>Tidak ditemukan dokumen sesuai pencarian.</p>
+                            </div>
+                            @else
                             Belum ada dokumen arsip umum.
+                            @endif
                         </td>
                     </tr>
                     @endforelse

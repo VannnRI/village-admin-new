@@ -13,8 +13,12 @@
     </div>
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 class="text-lg font-semibold text-gray-900">Daftar Pengajuan Surat</h2>
+            <form method="GET" action="" class="flex gap-2">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama/NIK/jenis surat/status..." class="border rounded px-3 py-1 text-sm" />
+                <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Cari</button>
+            </form>
         </div>
         
         @if($letterRequests->count() > 0)
@@ -81,7 +85,7 @@
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <div class="flex flex-col sm:flex-row gap-2">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm">
+                                            <a href="{{ route('admin-desa.letter-requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm">
                                                 <i class="fas fa-eye mr-1"></i><span class="hidden sm:inline">Detail</span>
                                             </a>
                                             @if($request->status === 'pending')
@@ -106,11 +110,19 @@
                 </div>
             </div>
         @else
-            <div class="px-6 py-8 text-center">
-                <i class="fas fa-envelope text-4xl text-gray-400 mb-4"></i>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada pengajuan surat</h3>
-                <p class="text-gray-600 mb-4">Masyarakat belum mengajukan surat apapun.</p>
-            </div>
+            @if(request('q') && $totalLetterRequests > 0)
+                <div class="px-6 py-8 text-center">
+                    <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ditemukan pengajuan surat sesuai pencarian.</h3>
+                    <p class="text-gray-600 mb-4">Coba kata kunci lain atau periksa kembali ejaan pencarian Anda.</p>
+                </div>
+            @else
+                <div class="px-6 py-8 text-center">
+                    <i class="fas fa-envelope text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada pengajuan surat</h3>
+                    <p class="text-gray-600 mb-4">Masyarakat belum mengajukan surat apapun.</p>
+                </div>
+            @endif
         @endif
     </div>
 @endsection 

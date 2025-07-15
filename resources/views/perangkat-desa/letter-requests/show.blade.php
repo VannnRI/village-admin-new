@@ -27,6 +27,14 @@
             <strong>Tujuan Permohonan:</strong> {{ $request->purpose ?? '-' }}<br>
             <strong>No Telepon:</strong> {{ $request->citizen->phone ?? '-' }}<br>
             <strong>Alamat:</strong> {{ $request->citizen->address ?? '-' }}<br>
+            @php
+                $extraData = $request->data ? json_decode($request->data, true) : [];
+                $keperluanText = isset($extraData['keperluan']) ? $extraData['keperluan'] : null;
+                if(isset($extraData['keperluan'])) unset($extraData['keperluan']);
+            @endphp
+            @if($keperluanText)
+            <strong>Keperluan:</strong> {{ $keperluanText }}<br>
+            @endif
             <strong>Status:</strong>
             @if($request->status == 'pending')
                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
@@ -46,13 +54,30 @@
                     <i class="fas fa-check mr-2"></i>Setujui
                 </button>
             </form>
-            <form action="{{ route('perangkat-desa.letter-requests.reject', $request->id) }}" method="POST">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                    <i class="fas fa-times mr-2"></i>Tolak
-                </button>
-            </form>
+            <!-- Tombol Tolak dengan Modal -->
+            <button type="button" onclick="document.getElementById('modal-reject').classList.remove('hidden')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                <i class="fas fa-times mr-2"></i>Tolak
+            </button>
         </div>
+        <!-- Modal Popup Tolak -->
+        <div id="modal-reject" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative animate-fade-in">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Alasan Penolakan Surat</h2>
+                <form action="{{ route('perangkat-desa.letter-requests.reject', $request->id) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <textarea name="notes" rows="4" required class="w-full border border-red-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-200 focus:border-red-500 placeholder-gray-400" placeholder="Tuliskan alasan penolakan secara jelas..."></textarea>
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button type="button" onclick="document.getElementById('modal-reject').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold">Kirim Penolakan</button>
+                    </div>
+                </form>
+                <button type="button" onclick="document.getElementById('modal-reject').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+        </div>
+        <style>
+        @keyframes fade-in { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: none; } }
+        .animate-fade-in { animation: fade-in 0.2s ease; }
+        </style>
         @endif
         @if($request->status == 'approved')
         <div class="flex gap-4 mt-6">

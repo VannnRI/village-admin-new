@@ -28,6 +28,21 @@
         </a>
     </div>
 
+    <form method="GET" action="{{ route('super-admin.users') }}" class="mb-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <div class="relative w-full sm:w-64">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="fas fa-search text-green-700"></i>
+            </span>
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, email, username, desa, role..." class="pl-10 pr-3 py-2 w-full rounded-lg border-2 border-green-500 focus:border-green-700 focus:ring-2 focus:ring-green-200 shadow-lg transition-all duration-200 bg-white placeholder-gray-600 text-gray-900 font-semibold" />
+        </div>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-lg transition-all duration-200 font-bold flex items-center gap-2">
+            <i class="fas fa-search"></i> <span class="hidden sm:inline">Cari</span>
+        </button>
+        @if(request('q'))
+            <a href="{{ route('super-admin.users') }}" class="ml-2 text-sm text-green-700 hover:text-green-900 underline transition-all duration-200 font-semibold">Reset</a>
+        @endif
+    </form>
+
     <div class="overflow-x-auto">
         <div class="bg-white rounded-lg shadow overflow-hidden w-full max-w-full md:max-w-4xl">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -113,11 +128,16 @@
             @else
                 <div class="px-6 py-8 text-center">
                     <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada user</h3>
-                    <p class="text-gray-600 mb-4">Mulai dengan menambahkan admin desa atau perangkat desa.</p>
-                    <a href="{{ route('super-admin.users.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                        <i class="fas fa-plus mr-2"></i>Tambah User Pertama
-                    </a>
+                    @if(request('q'))
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada user ditemukan untuk pencarian "{{ request('q') }}"</h3>
+                        <a href="{{ route('super-admin.users') }}" class="text-sm text-gray-500 hover:underline">Tampilkan semua user</a>
+                    @else
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada user</h3>
+                        <p class="text-gray-600 mb-4">Mulai dengan menambahkan admin desa atau perangkat desa.</p>
+                        <a href="{{ route('super-admin.users.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Tambah User Pertama
+                        </a>
+                    @endif
                 </div>
             @endif
         </div>

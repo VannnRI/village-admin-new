@@ -21,8 +21,12 @@
         </div>
     </div>
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 class="text-lg font-semibold text-gray-900">Daftar Permohonan</h2>
+            <form method="GET" action="" class="flex gap-2">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama/NIK/jenis surat/status..." class="border rounded px-3 py-1 text-sm" />
+                <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Cari</button>
+            </form>
         </div>
         @if($requests->count() > 0)
             <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
@@ -68,10 +72,18 @@
                 </div>
             </div>
         @else
+            @if(request('q') && $totalLetterRequests > 0)
+            <div class="px-6 py-8 text-center">
+                <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ditemukan permohonan surat sesuai pencarian.</h3>
+                <p class="text-gray-600 mb-4">Coba kata kunci lain atau periksa kembali ejaan pencarian Anda.</p>
+            </div>
+            @else
             <div class="px-6 py-8 text-center">
                 <i class="fas fa-envelope text-4xl text-gray-400 mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada permohonan surat</h3>
             </div>
+            @endif
         @endif
     </div>
 @endsection 

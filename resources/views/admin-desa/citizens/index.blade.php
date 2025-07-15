@@ -66,8 +66,12 @@
 
     <div class="overflow-x-auto">
         <div class="bg-white rounded-lg shadow overflow-hidden w-full max-w-full md:max-w-4xl">
-            <div class="px-6 py-4 border-b border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 class="text-lg font-semibold text-gray-900">Daftar Penduduk</h2>
+                <form method="GET" action="" class="flex gap-2">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama/NIK/KK/alamat/jenis kelamin..." class="border rounded px-3 py-1 text-sm" />
+                    <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Cari</button>
+                </form>
             </div>
             
             @if($citizens->count() > 0)
@@ -151,6 +155,13 @@
                     </div>
                 </div>
             @else
+                @if(request('q') && $totalCitizens > 0)
+                <div class="px-6 py-8 text-center">
+                    <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ditemukan data penduduk sesuai pencarian.</h3>
+                    <p class="text-gray-600 mb-4">Coba kata kunci lain atau periksa kembali ejaan pencarian Anda.</p>
+                </div>
+                @else
                 <div class="px-6 py-8 text-center">
                     <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada data penduduk</h3>
@@ -159,6 +170,7 @@
                         <i class="fas fa-plus mr-2"></i>Tambah Penduduk Pertama
                     </a>
                 </div>
+                @endif
             @endif
         </div>
     </div>

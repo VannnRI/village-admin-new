@@ -78,31 +78,15 @@
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
-                <input type="text" placeholder="Cari nama, NIK, atau KK..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIK, atau KK..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="flex gap-2">
-                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Semua Jenis Kelamin</option>
-                    <option value="L">Laki-laki</option>
-                    <option value="P">Perempuan</option>
-                </select>
-                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Semua Agama</option>
-                    <option value="Islam">Islam</option>
-                    <option value="Kristen">Kristen</option>
-                    <option value="Katolik">Katolik</option>
-                    <option value="Hindu">Hindu</option>
-                    <option value="Buddha">Buddha</option>
-                    <option value="Konghucu">Konghucu</option>
-                </select>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                    <i class="fas fa-search mr-2"></i>
-                    Cari
-                </button>
-            </div>
-        </div>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">
+                <i class="fas fa-search mr-2"></i>
+                Cari
+            </button>
+        </form>
     </div>
 
     <!-- Population Data Table -->
@@ -149,10 +133,17 @@
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            @if(request('q') && $totalCitizens > 0)
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                <p>Tidak ditemukan data penduduk sesuai pencarian.</p>
+                            </div>
+                            @else
                             <div class="flex flex-col items-center">
                                 <i class="fas fa-users text-4xl text-gray-300 mb-2"></i>
                                 <p>Belum ada data penduduk</p>
                             </div>
+                            @endif
                         </td>
                     </tr>
                     @endforelse
@@ -183,15 +174,15 @@
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">0-17 tahun</span>
-                    <span class="text-sm font-medium text-gray-900">0 orang</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $umur_0_17 }} orang</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">18-60 tahun</span>
-                    <span class="text-sm font-medium text-gray-900">0 orang</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $umur_18_60 }} orang</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">>60 tahun</span>
-                    <span class="text-sm font-medium text-gray-900">0 orang</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $umur_60 }} orang</span>
                 </div>
             </div>
         </div>

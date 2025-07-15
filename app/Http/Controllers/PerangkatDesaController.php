@@ -27,12 +27,25 @@ class PerangkatDesaController extends Controller
         return view('perangkat-desa.dashboard', compact('village', 'pending', 'approved', 'rejected'));
     }
 
-    public function letterRequests()
+    public function letterRequests(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
-        $requests = LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType'])->orderByDesc('created_at')->get();
-        return view('perangkat-desa.letter-requests.index', compact('village', 'requests'));
+        $query = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType']);
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('applicant_name', 'like', "%$q%")
+                    ->orWhere('applicant_nik', 'like', "%$q%")
+                    ->orWhereHas('letterType', function($q2) use ($q) {
+                        $q2->where('name', 'like', "%$q%") ;
+                    })
+                    ->orWhere('status', 'like', "%$q%") ;
+            });
+        }
+        $requests = $query->orderByDesc('created_at')->get();
+        $totalLetterRequests = \App\Models\LetterRequest::where('village_id', $village->id)->count();
+        return view('perangkat-desa.letter-requests.index', compact('village', 'requests', 'totalLetterRequests'));
     }
 
     public function showLetterRequest($id)
@@ -54,14 +67,18 @@ class PerangkatDesaController extends Controller
         return redirect()->route('perangkat-desa.letter-requests')->with('success', 'Permohonan surat disetujui.');
     }
 
-    public function rejectLetterRequest($id)
+    public function rejectLetterRequest(Request $request, $id)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
-        $request = LetterRequest::where('village_id', $village->id)->findOrFail($id);
-        $request->status = 'rejected';
-        $request->approved_by = $user->id;
-        $request->save();
+        $letterRequest = LetterRequest::where('village_id', $village->id)->findOrFail($id);
+        $request->validate([
+            'notes' => 'required|string|max:1000',
+        ]);
+        $letterRequest->status = 'rejected';
+        $letterRequest->approved_by = $user->id;
+        $letterRequest->notes = $request->notes;
+        $letterRequest->save();
         return redirect()->route('perangkat-desa.letter-requests')->with('success', 'Permohonan surat ditolak.');
     }
 

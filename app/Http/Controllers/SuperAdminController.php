@@ -23,9 +23,22 @@ class SuperAdminController extends Controller
         return view('super-admin.dashboard', compact('totalVillages', 'totalAdminDesa', 'totalPerangkatDesa'));
     }
 
-    public function villages()
+    public function villages(Request $request)
     {
-        $villages = Village::all();
+        $query = Village::query();
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('address', 'like', "%$q%")
+                    ->orWhere('description', 'like', "%$q%")
+                    ->orWhere('phone', 'like', "%$q%")
+                    ->orWhere('email', 'like', "%$q%")
+                    ->orWhere('district', 'like', "%$q%")
+                    ->orWhere('regency', 'like', "%$q%") ;
+            });
+        }
+        $villages = $query->get();
         return view('super-admin.villages.index', compact('villages'));
     }
 
@@ -112,12 +125,26 @@ class SuperAdminController extends Controller
         return redirect()->route('super-admin.villages')->with('success', 'Desa berhasil dihapus');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::whereHas('roles', function($query) {
+        $query = User::whereHas('roles', function($query) {
             $query->whereIn('name', ['admin_desa', 'perangkat_desa']);
-        })->with(['roles', 'villages'])->get();
-
+        })->with(['roles', 'villages']);
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('email', 'like', "%$q%")
+                    ->orWhere('username', 'like', "%$q%")
+                    ->orWhereHas('villages', function($q2) use ($q) {
+                        $q2->where('name', 'like', "%$q%") ;
+                    })
+                    ->orWhereHas('roles', function($q2) use ($q) {
+                        $q2->where('name', 'like', "%$q%") ;
+                    });
+            });
+        }
+        $users = $query->get();
         return view('super-admin.users.index', compact('users'));
     }
 

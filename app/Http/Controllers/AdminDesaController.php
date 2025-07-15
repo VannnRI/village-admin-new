@@ -37,7 +37,7 @@ class AdminDesaController extends Controller
         return view('admin-desa.dashboard', compact('village', 'totalCitizens', 'pendingLetters', 'approvedLetters'));
     }
 
-    public function citizens()
+    public function citizens(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
@@ -46,8 +46,20 @@ class AdminDesaController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
 
-        $citizens = Citizen::where('village_id', $village->id)->get();
-        return view('admin-desa.citizens.index', compact('citizens', 'village'));
+        $query = \App\Models\Citizen::where('village_id', $village->id);
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('nik', 'like', "%$q%")
+                    ->orWhere('kk_number', 'like', "%$q%")
+                    ->orWhere('address', 'like', "%$q%")
+                    ->orWhere('gender', 'like', "%$q%") ;
+            });
+        }
+        $citizens = $query->get();
+        $totalCitizens = \App\Models\Citizen::where('village_id', $village->id)->count();
+        return view('admin-desa.citizens.index', compact('citizens', 'village', 'totalCitizens'));
     }
 
     public function createCitizen()
@@ -199,7 +211,7 @@ class AdminDesaController extends Controller
         }
     }
 
-    public function letterRequests()
+    public function letterRequests(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
@@ -208,12 +220,29 @@ class AdminDesaController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
 
-        $letterRequests = LetterRequest::where('village_id', $village->id)
-                                      ->with(['citizen', 'letterType'])
-                                      ->orderBy('created_at', 'desc')
-                                      ->get();
+        $query = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType']);
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('applicant_name', 'like', "%$q%")
+                    ->orWhere('applicant_nik', 'like', "%$q%")
+                    ->orWhereHas('letterType', function($q2) use ($q) {
+                        $q2->where('name', 'like', "%$q%") ;
+                    })
+                    ->orWhere('status', 'like', "%$q%") ;
+            });
+        }
+        $letterRequests = $query->orderBy('created_at', 'desc')->get();
+        $totalLetterRequests = \App\Models\LetterRequest::where('village_id', $village->id)->count();
+        return view('admin-desa.letter-requests.index', compact('letterRequests', 'village', 'totalLetterRequests'));
+    }
 
-        return view('admin-desa.letter-requests.index', compact('letterRequests', 'village'));
+    public function showLetterRequest($id)
+    {
+        $user = Auth::user();
+        $village = $user->villages()->first();
+        $request = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType'])->findOrFail($id);
+        return view('admin-desa.letter-requests.show', compact('village', 'request'));
     }
 
     public function villageProfile()
@@ -273,7 +302,7 @@ class AdminDesaController extends Controller
         return view('admin-desa.archives.index', compact('village'));
     }
 
-    public function generalArchives()
+    public function generalArchives(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
@@ -282,16 +311,23 @@ class AdminDesaController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
 
-        // Ambil data arsip umum dari database
-        $generalDocuments = Archive::where('village_id', $village->id)
-            ->where('type', 'general')
-            ->orderByDesc('date')
-            ->get();
-
-        return view('admin-desa.archives.general', compact('village', 'generalDocuments'));
+        $query = Archive::where('village_id', $village->id)->where('type', 'general');
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('title', 'like', "%$q%")
+                    ->orWhere('description', 'like', "%$q%") ;
+            });
+        }
+        if ($request->category) {
+            $query->where('category', $request->category);
+        }
+        $generalDocuments = $query->orderByDesc('date')->get();
+        $totalDocuments = Archive::where('village_id', $village->id)->where('type', 'general')->count();
+        return view('admin-desa.archives.general', compact('village', 'generalDocuments', 'totalDocuments'));
     }
 
-    public function populationArchives()
+    public function populationArchives(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
@@ -300,14 +336,36 @@ class AdminDesaController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
 
-        $citizens = Citizen::where('village_id', $village->id)
-                          ->orderBy('name', 'asc')
-                          ->get();
+        $query = \App\Models\Citizen::where('village_id', $village->id);
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('nik', 'like', "%$q%")
+                    ->orWhere('kk_number', 'like', "%$q%")
+                    ->orWhere('address', 'like', "%$q%") ;
+            });
+        }
+        $citizens = $query->orderBy('name', 'asc')->get();
+        $totalCitizens = \App\Models\Citizen::where('village_id', $village->id)->count();
 
-        return view('admin-desa.archives.population', compact('village', 'citizens'));
+        // Statistik umur
+        $now = \Carbon\Carbon::now();
+        $umur_0_17 = $citizens->filter(function($c) use ($now) {
+            return $c->birth_date && $now->diffInYears(\Carbon\Carbon::parse($c->birth_date)) <= 17;
+        })->count();
+        $umur_18_60 = $citizens->filter(function($c) use ($now) {
+            $age = $c->birth_date ? $now->diffInYears(\Carbon\Carbon::parse($c->birth_date)) : null;
+            return $age !== null && $age >= 18 && $age <= 60;
+        })->count();
+        $umur_60 = $citizens->filter(function($c) use ($now) {
+            return $c->birth_date && $now->diffInYears(\Carbon\Carbon::parse($c->birth_date)) > 60;
+        })->count();
+
+        return view('admin-desa.archives.population', compact('village', 'citizens', 'totalCitizens', 'umur_0_17', 'umur_18_60', 'umur_60'));
     }
 
-    public function letterArchives()
+    public function letterArchives(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
@@ -316,24 +374,42 @@ class AdminDesaController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
 
-        $letterRequests = LetterRequest::where('village_id', $village->id)
-                                      ->with(['citizen', 'letterType'])
-                                      ->orderBy('created_at', 'desc')
-                                      ->get();
+        $totalLetterRequests = \App\Models\LetterRequest::where('village_id', $village->id)->count();
 
-        // Group by status
-        $pendingLetters = $letterRequests->where('status', 'pending');
-        $approvedLetters = $letterRequests->where('status', 'approved');
-        $rejectedLetters = $letterRequests->where('status', 'rejected');
-        $completedLetters = $letterRequests->where('status', 'completed');
+        // Query untuk statistik tab (semua data)
+        $allLetterRequests = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType'])->orderBy('created_at', 'desc')->get();
+        $pendingLetters = $allLetterRequests->where('status', 'pending');
+        $approvedLetters = $allLetterRequests->where('status', 'approved');
+        $rejectedLetters = $allLetterRequests->where('status', 'rejected');
+        $completedLetters = $allLetterRequests->where('status', 'completed');
+
+        // Query untuk tabel (terfilter)
+        $query = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType']);
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('applicant_name', 'like', "%$q%")
+                    ->orWhere('applicant_nik', 'like', "%$q%")
+                    ->orWhereHas('letterType', function($q2) use ($q) {
+                        $q2->where('name', 'like', "%$q%") ;
+                    })
+                    ->orWhere('purpose', 'like', "%$q%") ;
+            });
+        }
+        $letterRequests = $query->orderBy('created_at', 'desc')->get();
 
         return view('admin-desa.archives.letter-archives', compact(
             'village', 
             'letterRequests', 
+            'allLetterRequests',
             'pendingLetters', 
             'approvedLetters', 
             'rejectedLetters', 
-            'completedLetters'
+            'completedLetters',
+            'totalLetterRequests'
         ));
     }
 
