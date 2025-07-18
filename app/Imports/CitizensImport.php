@@ -6,10 +6,11 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use App\Models\Citizen;
 use Illuminate\Support\Facades\Auth;
 
-class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
+class CitizensImport implements ToCollection, WithHeadingRow, WithValidation, WithStartRow
 {
     protected $villageId;
 
@@ -32,6 +33,13 @@ class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
                 continue;
             }
 
+            // Validasi jenis_kelamin setelah dinormalisasi
+            $gender = $this->parseGender($row['jenis_kelamin'] ?? null);
+            if ($gender === null) {
+                // Jika ingin mencatat error, bisa tambahkan log atau array error di sini
+                continue; // Skip jika jenis_kelamin tidak valid
+            }
+
             // Check if NIK already exists
             $existingCitizen = Citizen::where('nik', $row['nik'])->first();
             if ($existingCitizen) {
@@ -48,7 +56,7 @@ class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
                 'address' => $row['alamat'] ?? null,
                 'phone' => $row['no_telepon'] ?? null,
                 'email' => $row['email'] ?? null,
-                'gender' => $this->parseGender($row['jenis_kelamin'] ?? null),
+                'gender' => $gender,
                 'religion' => $row['agama'] ?? null,
                 'marital_status' => $row['status_perkawinan'] ?? null,
                 'education' => $row['pendidikan'] ?? null,
@@ -69,7 +77,8 @@ class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
             'alamat' => 'required|string|max:255',
             'no_telepon' => 'nullable|string|max:32',
             'email' => 'nullable|email|max:255',
-            'jenis_kelamin' => 'required|string|in:L,P,Laki-laki,Perempuan',
+            // Hapus rule in:... agar tidak case-sensitive
+            'jenis_kelamin' => 'required|string',
             'agama' => 'required|string|max:32',
             'status_perkawinan' => 'required|string|max:32',
             'pendidikan' => 'required|string|max:32',
@@ -99,6 +108,11 @@ class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
         ];
     }
 
+    public function startRow(): int
+    {
+        return 3; // Data dimulai dari baris ke-3
+    }
+
     private function parseDate($date)
     {
         if (empty($date)) {
@@ -125,13 +139,12 @@ class CitizensImport implements ToCollection, WithHeadingRow, WithValidation
         }
 
         $gender = strtolower(trim($gender));
-        
-        if (in_array($gender, ['l', 'laki-laki', 'laki laki'])) {
+        // Tambahkan variasi umum
+        if (in_array($gender, ['l', 'laki-laki', 'laki laki', 'pria', 'lk'])) {
             return 'L';
-        } elseif (in_array($gender, ['p', 'perempuan'])) {
+        } elseif (in_array($gender, ['p', 'perempuan', 'wanita', 'peremp'])) {
             return 'P';
         }
-
         return null;
     }
 }

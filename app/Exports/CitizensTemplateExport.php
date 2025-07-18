@@ -2,61 +2,79 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class CitizensTemplateExport implements FromCollection, WithHeadings, WithStyles
+class CitizensTemplateExport implements FromArray, WithHeadings, WithStyles, WithEvents
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    public function array(): array
     {
-        // Return example data for template
-        return collect([
+        return [
+            // Baris 2: Keterangan
             [
-                'nik' => '1234567890123456',
-                'nama' => 'Contoh Nama',
-                'no_kk' => '1234567890123456',
-                'tempat_lahir' => 'Jakarta',
-                'tanggal_lahir' => '01/01/1990',
-                'alamat' => 'Jl. Contoh No. 123',
-                'no_telepon' => '081234567890',
-                'email' => 'contoh@email.com',
-                'jenis_kelamin' => 'L',
-                'agama' => 'Islam',
-                'status_perkawinan' => 'Menikah',
-                'pendidikan' => 'SMA',
-                'pekerjaan' => 'Wiraswasta',
-                'kewarganegaraan' => 'Indonesia'
-            ]
-        ]);
+                'Wajib - 16 digit',
+                'Wajib',
+                'Wajib - 16 digit',
+                'Wajib',
+                'Wajib - dd/mm/yyyy',
+                'Wajib',
+                'Opsional',
+                'Opsional',
+                'Wajib - L/P',
+                'Wajib',
+                'Wajib',
+                'Wajib',
+                'Wajib',
+                'Wajib',
+            ],
+            // Baris 3: Contoh data
+            [
+                '1234567890123456',
+                'Contoh Nama',
+                '1234567890123456',
+                'Jakarta',
+                '01/01/1990',
+                'Jl. Contoh No. 123',
+                '081234567890',
+                'contoh@email.com',
+                'L',
+                'Islam',
+                'Menikah',
+                'SMA',
+                'Wiraswasta',
+                'Indonesia',
+            ],
+        ];
     }
 
     public function headings(): array
     {
+        // Baris 1: Nama field (untuk import)
         return [
-            'NIK (Wajib - 16 digit)',
-            'Nama (Wajib)',
-            'No KK (Wajib - 16 digit)',
-            'Tempat Lahir (Wajib)',
-            'Tanggal Lahir (Wajib - dd/mm/yyyy)',
-            'Alamat (Wajib)',
-            'No Telepon (Opsional)',
-            'Email (Opsional)',
-            'Jenis Kelamin (Wajib - L/P)',
-            'Agama (Wajib)',
-            'Status Perkawinan (Wajib)',
-            'Pendidikan (Wajib)',
-            'Pekerjaan (Wajib)',
-            'Kewarganegaraan (Wajib)'
+            'nik',
+            'nama',
+            'no_kk',
+            'tempat_lahir',
+            'tanggal_lahir',
+            'alamat',
+            'no_telepon',
+            'email',
+            'jenis_kelamin',
+            'agama',
+            'status_perkawinan',
+            'pendidikan',
+            'pekerjaan',
+            'kewarganegaraan',
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
+        // Baris 1 (header) bold
         return [
             1 => [
                 'font' => ['bold' => true],
@@ -64,7 +82,26 @@ class CitizensTemplateExport implements FromCollection, WithHeadings, WithStyles
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                     'startColor' => ['rgb' => 'E5E7EB']
                 ]
+            ],
+            2 => [
+                'font' => ['italic' => true],
             ]
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Pewarnaan kolom wajib (A, B, C, D, E, F, I, J, K, L, M, N, O)
+                $wajibColumns = ['A','B','C','D','E','F','I','J','K','L','M','N','O'];
+                foreach ($wajibColumns as $col) {
+                    // Baris 2 (keterangan) diberi warna kuning
+                    $event->sheet->getDelegate()->getStyle("{$col}2")->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setRGB('FFFACD'); // LemonChiffon
+                }
+            }
         ];
     }
 }
