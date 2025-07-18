@@ -158,7 +158,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900">
-                            <div class="max-w-xs truncate">{{ $request->purpose ?? '-' }}</div>
+                            -
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">

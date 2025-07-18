@@ -30,6 +30,19 @@
             <label for="template_html" class="block font-semibold mb-1">Isi Template Surat</label>
             <textarea name="template_html" id="template_html" class="w-full border rounded px-3 py-2" rows="10">{{ old('template_html', $template->template_html) }}</textarea>
         </div>
+        <div class="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-gray-800 rounded">
+            <b>Panduan Penambahan Field Dinamis:</b>
+            <ul class="list-disc ml-5 mt-1">
+                <li>Field dinamis adalah isian yang akan muncul di form pengajuan surat masyarakat.</li>
+                <li><b>Nama Field</b>: Harus unik, tanpa spasi, gunakan huruf kecil/underscore (misal: <code>tujuan</code>, <code>nama_alm</code>).</li>
+                <li><b>Label</b>: Teks yang tampil di form (boleh spasi, misal: <code>Nama Almarhum</code>).</li>
+                <li><b>Tipe Field</b>: Pilih sesuai kebutuhan (text, number, date, textarea, select, radio, checkbox).</li>
+                <li><b>Opsi Pilihan</b> (untuk select/radio/checkbox): Masukkan beberapa opsi, pisahkan dengan koma. Contoh: <code>Laki-Laki, Perempuan</code></li>
+                <li><b>Wajib</b>: Centang jika field harus diisi masyarakat.</li>
+                <li>Gunakan tombol <b>+ Tambah Field</b> untuk menambah isian baru.</li>
+                <li>Contoh hasil: Jika Anda menambah field <code>tujuan</code> label "Tujuan Permohonan", maka masyarakat akan mengisi "Tujuan Permohonan" di form.</li>
+            </ul>
+        </div>
         <div class="mb-6">
             <label class="block font-semibold mb-2">Field Dinamis (Isian Pengajuan Surat)</label>
             <div id="fields-list"></div>
@@ -46,17 +59,19 @@
             let html = '';
             fields.forEach((f, i) => {
                 html += `<div class='border rounded p-3 mb-2 bg-gray-50'>
-                    <b>Field "+(i+1)+":</b> 
+                    <b>Field ${i+1}:</b> 
                     <input type='text' placeholder='Nama Field' value='${f.name}' onchange='fields[${i}].name=this.value;renderFields()' class='border px-2 py-1 rounded mr-2' style='width:120px;'>
                     <input type='text' placeholder='Label' value='${f.label}' onchange='fields[${i}].label=this.value;renderFields()' class='border px-2 py-1 rounded mr-2' style='width:160px;'>
                     <select onchange='fields[${i}].type=this.value;renderFields()' class='border px-2 py-1 rounded mr-2'>
                         <option value='text' ${f.type==='text'?'selected':''}>Text</option>
+                        <option value='number' ${f.type==='number'?'selected':''}>Number</option>
+                        <option value='date' ${f.type==='date'?'selected':''}>Date</option>
                         <option value='textarea' ${f.type==='textarea'?'selected':''}>Textarea</option>
                         <option value='select' ${f.type==='select'?'selected':''}>Select</option>
                         <option value='radio' ${f.type==='radio'?'selected':''}>Radio</option>
                         <option value='checkbox' ${f.type==='checkbox'?'selected':''}>Checkbox</option>
                     </select>
-                    <label class='ml-2'><input type='checkbox' ${f.required?'checked':''} onchange='fields[${i}].required=this.checked;renderFields()'> Wajib</label>
+                    <label class='ml-2'><input type='checkbox' ${f.required?'checked':''} onchange='fields[${i}].required=this.checked;renderFields()'> ${f.required ? 'Wajib' : 'Tidak Wajib'}</label>
                     <button type='button' onclick='fields.splice(${i},1);renderFields()' class='ml-2 text-red-600'>Hapus</button><br>`;
                 if(['select','radio','checkbox'].includes(f.type)) {
                     html += `<input type='text' placeholder='Opsi (pisahkan dengan koma)' value='${f.options||''}' onchange='fields[${i}].options=this.value;renderFields()' class='border px-2 py-1 rounded mt-2' style='width:300px;'>`;

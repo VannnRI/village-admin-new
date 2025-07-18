@@ -19,22 +19,31 @@
         <p class="text-gray-600">Detail permohonan surat dari masyarakat desa {{ $village->name }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Data Masyarakat</h2>
+        <table class="table-auto w-full mb-6 border border-gray-200 rounded">
+            <tbody>
+                <tr><th class="text-left p-2 w-1/3">Nama Pemohon</th><td class="p-2">{{ $request->citizen->name ?? '-' }}</td></tr>
+                <tr><th class="text-left p-2">NIK</th><td class="p-2">{{ $request->citizen->nik ?? '-' }}</td></tr>
+                <tr><th class="text-left p-2">No KK</th><td class="p-2">{{ $request->citizen->kk_number ?? '-' }}</td></tr>
+                <tr><th class="text-left p-2">No Telepon</th><td class="p-2">{{ $request->citizen->phone ?? '-' }}</td></tr>
+                <tr><th class="text-left p-2">Alamat</th><td class="p-2">{{ $request->citizen->address ?? '-' }}</td></tr>
+            </tbody>
+        </table>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Data Pengisian Dinamis</h2>
+        <table class="table-auto w-full mb-6 border border-gray-200 rounded">
+            <tbody>
+                @forelse($fields as $field)
+                    <tr>
+                        <th class="text-left p-2 w-1/3">{{ $field->field_label ?? ucwords(str_replace('_', ' ', $field->field_name)) }}</th>
+                        <td class="p-2">{{ $dynamicFields[$field->field_name] ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="2" class="p-2 text-gray-500">Tidak ada data dinamis.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
         <div class="mb-4">
-            <strong>Nama Pemohon:</strong> {{ $request->citizen->name ?? '-' }}<br>
-            <strong>NIK:</strong> {{ $request->citizen->nik ?? '-' }}<br>
-            <strong>No KK:</strong> {{ $request->citizen->kk_number ?? '-' }}<br>
             <strong>Jenis Surat:</strong> {{ $request->letterType->name ?? '-' }}<br>
-            <strong>Tujuan Permohonan:</strong> {{ $request->purpose ?? '-' }}<br>
-            <strong>No Telepon:</strong> {{ $request->citizen->phone ?? '-' }}<br>
-            <strong>Alamat:</strong> {{ $request->citizen->address ?? '-' }}<br>
-            @php
-                $extraData = $request->data ? json_decode($request->data, true) : [];
-                $keperluanText = isset($extraData['keperluan']) ? $extraData['keperluan'] : null;
-                if(isset($extraData['keperluan'])) unset($extraData['keperluan']);
-            @endphp
-            @if($keperluanText)
-            <strong>Keperluan:</strong> {{ $keperluanText }}<br>
-            @endif
             <strong>Status:</strong>
             @if($request->status == 'pending')
                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>

@@ -41,6 +41,10 @@
                 @foreach($fields as $field)
                     @php
                         $isCitizenField = in_array($field->field_name, $citizenFields) && !empty($citizen->{$field->field_name});
+                        $options = [];
+                        if (!empty($field->field_options)) {
+                            $options = array_map('trim', explode(',', $field->field_options));
+                        }
                     @endphp
                     @if($isCitizenField)
                         <input type="hidden" name="fields[{{ $field->field_name }}]" value="{{ $field->field_name == 'birth_date' ? ($citizen->birth_date ? $citizen->birth_date->format('Y-m-d') : '') : $citizen->{$field->field_name} }}">
@@ -49,40 +53,31 @@
                         <label for="field_{{ $field->field_name }}" class="block font-medium text-gray-800 mb-1">{{ $field->field_label }}@if($field->is_required) <span class="text-red-500">*</span>@endif</label>
                         @if($field->field_type == 'textarea')
                             <textarea name="fields[{{ $field->field_name }}]" id="field_{{ $field->field_name }}" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" {{ $field->is_required ? 'required' : '' }}>{{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') }}</textarea>
-                        @elseif($field->field_type == 'select' || $field->field_type == 'radio' || $field->field_type == 'checkbox')
-                            @php
-                                $options = preg_split('/\r\n|\r|\n/', $field->field_options);
-                            @endphp
-                            @if($field->field_type == 'select')
-                                <select name="fields[{{ $field->field_name }}]" id="field_{{ $field->field_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" {{ $field->is_required ? 'required' : '' }}>
-                                    <option value="">-- Pilih {{ $field->field_label }} --</option>
-                                    @foreach($options as $option)
-                                        @if(trim($option)) <option value="{{ trim($option) }}" {{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') == trim($option) ? 'selected' : '' }}>{{ trim($option) }}</option> @endif
-                                    @endforeach
-                                </select>
-                            @elseif($field->field_type == 'radio')
-                                <div class="mt-2">
+                        @elseif($field->field_type == 'select')
+                            <select name="fields[{{ $field->field_name }}]" id="field_{{ $field->field_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" {{ $field->is_required ? 'required' : '' }}>
+                                <option value="">-- Pilih {{ $field->field_label }} --</option>
                                 @foreach($options as $option)
-                                    @if(trim($option))
-                                    <label class="inline-flex items-center mr-4">
-                                        <input type="radio" name="fields[{{ $field->field_name }}]" value="{{ trim($option) }}" class="form-radio text-green-600" {{ $field->is_required ? 'required' : '' }} {{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') == trim($option) ? 'checked' : '' }}>
-                                        <span class="ml-2">{{ trim($option) }}</span>
-                                    </label>
-                                    @endif
+                                    <option value="{{ $option }}" {{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') == $option ? 'selected' : '' }}>{{ $option }}</option>
                                 @endforeach
-                                </div>
-                            @elseif($field->field_type == 'checkbox')
-                                <div class="mt-2">
-                                @foreach($options as $option)
-                                    @if(trim($option))
-                                    <label class="inline-flex items-center mr-4">
-                                        <input type="checkbox" name="fields[{{ $field->field_name }}][]" value="{{ trim($option) }}" class="form-checkbox text-green-600" {{ (is_array(old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? [])) && in_array(trim($option), old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? []))) ? 'checked' : '' }}>
-                                        <span class="ml-2">{{ trim($option) }}</span>
-                                    </label>
-                                    @endif
-                                @endforeach
-                                </div>
-                            @endif
+                            </select>
+                        @elseif($field->field_type == 'radio')
+                            <div class="mt-2">
+                            @foreach($options as $option)
+                                <label class="inline-flex items-center mr-4">
+                                    <input type="radio" name="fields[{{ $field->field_name }}]" value="{{ $option }}" class="form-radio text-green-600" {{ $field->is_required ? 'required' : '' }} {{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') == $option ? 'checked' : '' }}>
+                                    <span class="ml-2">{{ $option }}</span>
+                                </label>
+                            @endforeach
+                            </div>
+                        @elseif($field->field_type == 'checkbox')
+                            <div class="mt-2">
+                            @foreach($options as $option)
+                                <label class="inline-flex items-center mr-4">
+                                    <input type="checkbox" name="fields[{{ $field->field_name }}][]" value="{{ $option }}" class="form-checkbox text-green-600" {{ (is_array(old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? [])) && in_array($option, old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? []))) ? 'checked' : '' }}>
+                                    <span class="ml-2">{{ $option }}</span>
+                                </label>
+                            @endforeach
+                            </div>
                         @else
                             <input type="{{ $field->field_type }}" name="fields[{{ $field->field_name }}]" id="field_{{ $field->field_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" {{ $field->is_required ? 'required' : '' }} value="{{ old('fields.' . $field->field_name, $prefillData[$field->field_name] ?? '') }}">
                         @endif
@@ -91,11 +86,6 @@
                 @endforeach
             </div>
         @endif
-
-        <div class="mb-8">
-            <label for="purpose" class="block font-semibold text-gray-700 mb-2">Tujuan Permohonan <span class="text-red-500">*</span></label>
-            <textarea name="purpose" id="purpose" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required placeholder="Jelaskan tujuan dan keperluan surat ini...">{{ old('purpose', isset($resubmitRequest) && $resubmitRequest ? $resubmitRequest->purpose : '') }}</textarea>
-        </div>
 
         <div class="flex flex-col sm:flex-row gap-3 sm:space-x-4">
             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition duration-200 flex items-center justify-center font-semibold shadow">

@@ -53,7 +53,11 @@ class PerangkatDesaController extends Controller
         $user = Auth::user();
         $village = $user->villages()->first();
         $request = LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType'])->findOrFail($id);
-        return view('perangkat-desa.letter-requests.show', compact('village', 'request'));
+        // Ambil data dinamis (isian masyarakat)
+        $dynamicFields = $request->data ? json_decode($request->data, true) : [];
+        // Ambil field dinamis dari LetterType
+        $fields = $request->letterType ? $request->letterType->fields()->orderBy('order')->get() : collect();
+        return view('perangkat-desa.letter-requests.show', compact('village', 'request', 'dynamicFields', 'fields'));
     }
 
     public function approveLetterRequest($id)
@@ -63,6 +67,7 @@ class PerangkatDesaController extends Controller
         $request = LetterRequest::where('village_id', $village->id)->findOrFail($id);
         $request->status = 'approved';
         $request->approved_by = $user->id;
+        $request->approved_at = now();
         $request->save();
         return redirect()->route('perangkat-desa.letter-requests')->with('success', 'Permohonan surat disetujui.');
     }

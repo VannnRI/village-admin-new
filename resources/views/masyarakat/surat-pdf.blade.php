@@ -173,8 +173,6 @@
 
         <p>Adalah benar warga Desa {{ $village->name ?? 'Desa' }}, Kecamatan {{ $village->district ?? 'Kecamatan' }}, Kabupaten {{ $village->regency ?? 'Lamongan' }}.</p>
 
-        <p>Surat ini dibuat untuk keperluan: <strong>{{ $request->purpose }}</strong></p>
-
         <p>Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
     </div>
 

@@ -242,7 +242,11 @@ class AdminDesaController extends Controller
         $user = Auth::user();
         $village = $user->villages()->first();
         $request = \App\Models\LetterRequest::where('village_id', $village->id)->with(['citizen', 'letterType'])->findOrFail($id);
-        return view('admin-desa.letter-requests.show', compact('village', 'request'));
+        // Ambil data dinamis (isian masyarakat)
+        $dynamicFields = $request->data ? json_decode($request->data, true) : [];
+        // Ambil field dinamis dari LetterType
+        $fields = $request->letterType ? $request->letterType->fields()->orderBy('order')->get() : collect();
+        return view('admin-desa.letter-requests.show', compact('village', 'request', 'dynamicFields', 'fields'));
     }
 
     public function villageProfile()

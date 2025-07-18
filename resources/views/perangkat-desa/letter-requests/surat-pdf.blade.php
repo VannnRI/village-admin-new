@@ -25,7 +25,6 @@
             <tr><td>No KK</td><td>:</td><td>{{ $request->citizen->kk_number }}</td></tr>
             <tr><td>Alamat</td><td>:</td><td>{{ $request->citizen->address }}</td></tr>
             <tr><td>Jenis Surat</td><td>:</td><td>{{ $request->letterType->name ?? '-' }}</td></tr>
-            <tr><td>Tujuan Permohonan</td><td>:</td><td>{{ $request->purpose ?? '-' }}</td></tr>
         </table>
         <p style="margin-top: 20px;">Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
     </div>

@@ -77,7 +77,6 @@ class MasyarakatController extends Controller
         
         $request->validate([
             'letter_type_id' => 'required|exists:letter_types,id',
-            'purpose' => 'required|string',
         ]);
 
         // Validasi field dinamis
@@ -105,6 +104,9 @@ class MasyarakatController extends Controller
         // Simpan data dinamis
         $formData = $request->input('fields', []);
 
+        // Mapping otomatis ke kolom purpose
+        $purpose = $formData['tujuan'] ?? $formData['keperluan'] ?? null;
+
         LetterRequest::create([
             'village_id' => $village->id,
             'citizen_id' => $citizen->id,
@@ -114,7 +116,6 @@ class MasyarakatController extends Controller
             'applicant_name' => $citizen->name,
             'applicant_nik' => $citizen->nik,
             'applicant_kk' => $citizen->kk_number,
-            'purpose' => $request->purpose,
             'phone' => $citizen->phone,
             'address' => $citizen->address,
             'data' => json_encode($formData),

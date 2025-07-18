@@ -59,7 +59,6 @@
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <div class="text-sm font-medium text-gray-900">{{ $request->letterType->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ Str::limit($request->purpose, 30) }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <div class="text-sm text-gray-900">{{ $request->created_at->format('d/m/Y H:i') }}</div>
@@ -88,14 +87,6 @@
                                             <a href="{{ route('admin-desa.letter-requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm">
                                                 <i class="fas fa-eye mr-1"></i><span class="hidden sm:inline">Detail</span>
                                             </a>
-                                            @if($request->status === 'pending')
-                                                <a href="#" class="text-green-600 hover:text-green-900 text-xs sm:text-sm">
-                                                    <i class="fas fa-check mr-1"></i><span class="hidden sm:inline">Setujui</span>
-                                                </a>
-                                                <a href="#" class="text-red-600 hover:text-red-900 text-xs sm:text-sm">
-                                                    <i class="fas fa-times mr-1"></i><span class="hidden sm:inline">Tolak</span>
-                                                </a>
-                                            @endif
                                             @if($request->status === 'approved')
                                                 <a href="{{ route('admin-desa.letter-requests.download', $request->id) }}" class="text-blue-600 hover:text-blue-900 text-xs sm:text-sm" title="Download Surat">
                                                     <i class="fas fa-download mr-1"></i><span class="hidden sm:inline">Download</span>

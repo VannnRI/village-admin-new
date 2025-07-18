@@ -20,7 +20,6 @@
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">No</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">No Permohonan</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Jenis Surat</th>
-                    <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Tujuan</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Tanggal</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
@@ -32,7 +31,6 @@
                         <td class="px-4 py-4 whitespace-nowrap">{{ $i+1 }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">{{ $request->request_number }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">{{ $request->letter_name }}</td>
-                        <td class="px-4 py-4 whitespace-normal break-words max-w-xs">{{ $request->purpose }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">{{ $request->created_at->format('d/m/Y') }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             @if($request->status == 'approved')
