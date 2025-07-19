@@ -7,7 +7,10 @@ use App\Models\Village;
 use App\Models\Citizen;
 use App\Models\LetterRequest;
 use App\Models\LetterType;
+use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Collection;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -610,28 +613,99 @@ class AdminDesaController extends Controller
         return redirect()->route('admin-desa.archives.archives.general')->with('success', 'Dokumen berhasil dihapus');
     }
 
-    public function governmentStructure()
+    public function profile()
     {
-        $user = Auth::user();
-        $village = $user->villages()->first();
-        if (!$village) {
-            return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
-        }
-        return view('admin-desa.government-structure', compact('village'));
+        return view('admin-desa.profile');
     }
 
-    public function updateGovernmentStructure(Request $request)
+    public function updateUsername(Request $request)
+    {
+        $request->validate([
+            'new_username' => 'required|string|unique:users,username,' . Auth::id(),
+            'current_password' => 'required'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['username' => $request->new_username]);
+
+        return redirect()->route('admin-desa.profile')->with('success', 'Username berhasil diubah');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password_pw' => 'required',
+            'new_password' => 'required|string|min:6|confirmed'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password_pw, $user->password)) {
+            return back()->withErrors(['current_password_pw' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return redirect()->route('admin-desa.profile')->with('success', 'Password berhasil diubah');
+    }
+
+    public function resetPasswordPage(Request $request)
     {
         $user = Auth::user();
         $village = $user->villages()->first();
+        
         if (!$village) {
             return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
         }
-        $request->validate([
-            'head_name' => 'required|string|max:255',
-        ]);
-        $village->head_name = $request->head_name;
-        $village->save();
-        return redirect()->route('admin-desa.government-structure')->with('success', 'Nama Kepala Desa berhasil disimpan.');
+
+        $query = Citizen::where('village_id', $village->id)->with('user');
+        
+        if ($request->q) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('name', 'like', "%$q%")
+                    ->orWhere('nik', 'like', "%$q%")
+                    ->orWhereHas('user', function($q2) use ($q) {
+                        $q2->where('username', 'like', "%$q%");
+                    });
+            });
+        }
+        
+        $citizens = $query->get();
+        return view('admin-desa.citizens.reset-password', compact('citizens', 'village'));
     }
+
+    public function resetPasswordMasyarakat($userId)
+    {
+        $user = Auth::user();
+        $village = $user->villages()->first();
+        
+        if (!$village) {
+            return redirect()->route('login')->with('error', 'Anda tidak terikat dengan desa manapun.');
+        }
+
+        $targetUser = User::findOrFail($userId);
+        
+        // Check if user belongs to this village and has masyarakat role
+        $hasMasyarakatRole = $targetUser->roles()->where('name', 'masyarakat')->exists();
+        $belongsToVillage = $targetUser->villages()->where('villages.id', $village->id)->exists();
+        
+        if (!$hasMasyarakatRole || !$belongsToVillage) {
+            return redirect()->route('admin-desa.citizens.reset-password')->with('error', 'User tidak valid untuk direset password.');
+        }
+
+        // Reset password to default
+        $targetUser->update(['password' => Hash::make('password123')]);
+
+        return redirect()->route('admin-desa.citizens.reset-password')->with('success', 'Password berhasil direset menjadi "password123"');
+    }
+
+
 } 

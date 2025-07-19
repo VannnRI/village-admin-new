@@ -123,9 +123,6 @@
                 <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     Ditolak ({{ $rejectedLetters->count() }})
                 </a>
-                <a href="#" class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    Selesai ({{ $completedLetters->count() }})
-                </a>
             </nav>
         </div>
     </div>
@@ -142,7 +139,6 @@
                     <option value="pending">Pending</option>
                     <option value="approved">Disetujui</option>
                     <option value="rejected">Ditolak</option>
-                    <option value="completed">Selesai</option>
                 </select>
                 <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Semua Jenis Surat</option>
@@ -193,13 +189,11 @@
                                 @if($request->status == 'pending') bg-yellow-100 text-yellow-800
                                 @elseif($request->status == 'approved') bg-green-100 text-green-800
                                 @elseif($request->status == 'rejected') bg-red-100 text-red-800
-                                @elseif($request->status == 'completed') bg-blue-100 text-blue-800
                                 @else bg-gray-100 text-gray-800
                                 @endif">
                                 @if($request->status == 'pending') Pending
                                 @elseif($request->status == 'approved') Disetujui
                                 @elseif($request->status == 'rejected') Ditolak
-                                @elseif($request->status == 'completed') Selesai
                                 @else {{ ucfirst($request->status) }}
                                 @endif
                             </span>
@@ -279,10 +273,6 @@
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">Ditolak</span>
                     <span class="text-sm font-medium text-red-600">{{ $rejectedLetters->count() }} surat</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Selesai</span>
-                    <span class="text-sm font-medium text-blue-600">{{ $completedLetters->count() }} surat</span>
                 </div>
             </div>
         </div>

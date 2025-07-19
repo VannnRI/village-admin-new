@@ -32,15 +32,29 @@ class AuthController extends Controller
 
             // Jika penduduk ada
             if ($citizen) {
-                // Jika password sesuai dengan tanggal lahir (Y-m-d)
-                if ($password === $citizen->birth_date->format('Y-m-d')) {
-                    // Cek apakah user sudah ada, jika tidak, buat baru
-                    $user = $citizen->user;
-                    if (!$user) {
+                // Cek apakah user sudah ada
+                $user = $citizen->user;
+                
+                if (!$user) {
+                    // Jika belum ada user, cek apakah password sesuai dengan tanggal lahir (Y-m-d)
+                    if ($password === $citizen->birth_date->format('Y-m-d')) {
+                        // Cek apakah email sudah digunakan
+                        $email = $citizen->email ?? $citizen->nik . '@mail.com';
+                        $counter = 1;
+                        $originalEmail = $email;
+                        
+                        // Jika email sudah ada, tambahkan angka di belakang
+                        while (User::where('email', $email)->exists()) {
+                            $email = $originalEmail;
+                            $emailParts = explode('@', $email);
+                            $email = $emailParts[0] . $counter . '@' . $emailParts[1];
+                            $counter++;
+                        }
+                        
                         $user = User::create([
                             'name' => $citizen->name,
                             'username' => $citizen->nik,
-                            'email' => $citizen->email ?? $citizen->nik . '@mail.com',
+                            'email' => $email,
                             'password' => Hash::make($password),
                         ]);
 
@@ -53,10 +67,15 @@ class AuthController extends Controller
                         if ($masyarakatRole) {
                             $user->roles()->attach($masyarakatRole->id, ['village_id' => $citizen->village_id]);
                         }
+                        
+                        // Login dengan user yang baru dibuat
+                        if (Auth::loginUsingId($user->id)) {
+                            return redirect()->route('masyarakat.dashboard');
+                        }
                     }
-                    
-                    // Coba login
-                    if (Auth::loginUsingId($user->id)) {
+                } else {
+                    // Jika user sudah ada, coba login dengan password yang diinput
+                    if (Auth::attempt(['username' => $user->username, 'password' => $password])) {
                         return redirect()->route('masyarakat.dashboard');
                     }
                 }

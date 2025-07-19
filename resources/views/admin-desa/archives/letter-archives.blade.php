@@ -96,7 +96,6 @@
                 <a href="?status=pending&q={{ request('q') }}" class="border-b-2 {{ request('status')=='pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Pending ({{ $pendingLetters->count() }})</a>
                 <a href="?status=approved&q={{ request('q') }}" class="border-b-2 {{ request('status')=='approved' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Disetujui ({{ $approvedLetters->count() }})</a>
                 <a href="?status=rejected&q={{ request('q') }}" class="border-b-2 {{ request('status')=='rejected' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Ditolak ({{ $rejectedLetters->count() }})</a>
-                <a href="?status=completed&q={{ request('q') }}" class="border-b-2 {{ request('status')=='completed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500' }} py-4 px-1 text-sm font-medium hover:text-blue-600">Selesai ({{ $completedLetters->count() }})</a>
             </nav>
         </div>
     </div>
@@ -128,7 +127,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Surat</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pengajuan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -146,19 +144,14 @@
                                 @if($request->status == 'pending') bg-yellow-100 text-yellow-800
                                 @elseif($request->status == 'approved') bg-green-100 text-green-800
                                 @elseif($request->status == 'rejected') bg-red-100 text-red-800
-                                @elseif($request->status == 'completed') bg-blue-100 text-blue-800
                                 @else bg-gray-100 text-gray-800
                                 @endif">
                                 @if($request->status == 'pending') Pending
                                 @elseif($request->status == 'approved') Disetujui
                                 @elseif($request->status == 'rejected') Ditolak
-                                @elseif($request->status == 'completed') Selesai
                                 @else {{ ucfirst($request->status) }}
                                 @endif
                             </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            -
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
@@ -199,26 +192,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistik Jenis Surat</h3>
-            <div class="space-y-3">
-                @php
-                    $letterTypeStats = $letterRequests->groupBy('letter_type_id')->map(function($group) {
-                        return $group->count();
-                    });
-                @endphp
-                @forelse($letterTypeStats as $typeId => $count)
-                    @php
-                        $letterType = \App\Models\LetterType::find($typeId);
-                    @endphp
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">{{ $letterType->name ?? 'Unknown' }}</span>
-                        <span class="text-sm font-medium text-gray-900">{{ $count }} surat</span>
-                    </div>
-                @empty
-                    <div class="text-center text-gray-500">
-                        <p>Belum ada data statistik</p>
-                    </div>
-                @endforelse
-            </div>
+            @php
+                $allLetterTypes = \App\Models\LetterType::where(function($q) use ($village) {
+                    $q->where('village_id', $village->id)->orWhereNull('village_id');
+                })->get();
+                $letterTypeStats = $letterRequests->groupBy('letter_type_id')->map(function($group) {
+                    return $group->count();
+                });
+            @endphp
+            @foreach($allLetterTypes as $type)
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">{{ $type->name }}</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $letterTypeStats[$type->id] ?? 0 }} surat</span>
+                </div>
+            @endforeach
         </div>
 
         <div class="bg-white rounded-lg shadow p-6">
@@ -235,10 +222,6 @@
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">Ditolak</span>
                     <span class="text-sm font-medium text-red-600">{{ $rejectedLetters->count() }} surat</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Selesai</span>
-                    <span class="text-sm font-medium text-blue-600">{{ $completedLetters->count() }} surat</span>
                 </div>
             </div>
         </div>

@@ -37,6 +37,7 @@ Route::middleware(['auth', 'super.admin'])->prefix('super-admin')->name('super-a
     Route::get('/users/{id}/edit', [SuperAdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{id}', [SuperAdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{id}', [SuperAdminController::class, 'deleteUser'])->name('users.delete');
+    Route::put('/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('users.reset-password');
 });
 
 // Admin Desa Routes
@@ -46,6 +47,11 @@ Route::middleware(['auth', 'admin.desa'])->prefix('admin-desa')->name('admin-des
     // Village Profile
     Route::get('/village/profile', [AdminDesaController::class, 'villageProfile'])->name('village.profile');
     Route::post('/village/profile', [AdminDesaController::class, 'updateVillageProfile'])->name('village.profile.update');
+    
+    // Profile Management
+    Route::get('/profile', [AdminDesaController::class, 'profile'])->name('profile');
+    Route::put('/profile/update-username', [AdminDesaController::class, 'updateUsername'])->name('profile.update-username');
+    Route::put('/profile/update-password', [AdminDesaController::class, 'updatePassword'])->name('profile.update-password');
 
     // Citizen Management
     Route::get('/citizens', [AdminDesaController::class, 'citizens'])->name('citizens.index');
@@ -56,6 +62,10 @@ Route::middleware(['auth', 'admin.desa'])->prefix('admin-desa')->name('admin-des
     Route::delete('/citizens/{citizen}', [AdminDesaController::class, 'destroyCitizen'])->name('citizens.destroy');
     Route::get('/citizens/template/download', [AdminDesaController::class, 'downloadTemplate'])->name('citizens.template.download');
     Route::post('/citizens/import', [AdminDesaController::class, 'importCitizens'])->name('citizens.import');
+    
+    // Reset Password Masyarakat
+    Route::get('/citizens/reset-password', [AdminDesaController::class, 'resetPasswordPage'])->name('citizens.reset-password');
+    Route::put('/citizens/{user}/reset-password', [AdminDesaController::class, 'resetPasswordMasyarakat'])->name('citizens.reset-password-user');
     
     // Letter Requests
     Route::get('letter-requests', [AdminDesaController::class, 'letterRequests'])->name('letter-requests.index');
@@ -79,8 +89,8 @@ Route::middleware(['auth', 'admin.desa'])->prefix('admin-desa')->name('admin-des
 
     Route::resource('village-officials', App\Http\Controllers\AdminDesa\VillageOfficialController::class);
 
-    Route::get('government-structure', [AdminDesaController::class, 'governmentStructure'])->name('government-structure');
-    Route::post('government-structure', [AdminDesaController::class, 'updateGovernmentStructure'])->name('government-structure.update');
+    // Route::get('government-structure', [AdminDesaController::class, 'governmentStructure'])->name('government-structure');
+    // Route::post('government-structure', [AdminDesaController::class, 'updateGovernmentStructure'])->name('government-structure.update');
 
     Route::get('/letter-requests/{id}/download', [\App\Http\Controllers\AdminDesa\LetterTemplateController::class, 'downloadLetter'])->name('letter-requests.download');
 });
@@ -93,6 +103,11 @@ Route::middleware(['auth', 'perangkat.desa'])->prefix('perangkat-desa')->name('p
     Route::post('/letter-requests/{id}/approve', [PerangkatDesaController::class, 'approveLetterRequest'])->name('letter-requests.approve');
     Route::post('/letter-requests/{id}/reject', [PerangkatDesaController::class, 'rejectLetterRequest'])->name('letter-requests.reject');
     Route::get('/letter-requests/{id}/download', [PerangkatDesaController::class, 'downloadLetter'])->name('letter-requests.download');
+    
+    // Profile Management
+    Route::get('/profile', [PerangkatDesaController::class, 'profile'])->name('profile');
+    Route::put('/profile/update-username', [PerangkatDesaController::class, 'updateUsername'])->name('profile.update-username');
+    Route::put('/profile/update-password', [PerangkatDesaController::class, 'updatePassword'])->name('profile.update-password');
 });
 
 // Masyarakat Routes
@@ -105,4 +120,8 @@ Route::middleware(['auth', 'masyarakat'])->prefix('masyarakat')->name('masyaraka
     Route::get('/letters/status', [MasyarakatController::class, 'lettersStatus'])->name('letters.status');
     Route::get('/letters/{id}/download', [MasyarakatController::class, 'downloadLetter'])->name('letters.download');
     Route::post('/letters/resubmit/{id}', [MasyarakatController::class, 'resubmitLetter'])->name('letters.resubmit');
+    
+    // Profile Management
+    Route::put('/profile/update-username', [MasyarakatController::class, 'updateUsername'])->name('profile.update-username');
+    Route::put('/profile/update-password', [MasyarakatController::class, 'updatePassword'])->name('profile.update-password');
 });

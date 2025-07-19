@@ -3,14 +3,7 @@
 @section('title', 'Dashboard Perangkat Desa')
 
 @section('sidebar')
-    <a href="{{ route('perangkat-desa.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 bg-green-100 rounded-lg">
-        <i class="fas fa-tachometer-alt mr-3"></i>
-        Dashboard
-    </a>
-    <a href="{{ route('perangkat-desa.letter-requests') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-        <i class="fas fa-envelope mr-3"></i>
-        Permohonan Surat
-    </a>
+    @include('perangkat-desa.partials.sidebar')
 @endsection
 
 @section('content')
@@ -54,10 +47,60 @@
         </div>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Info Desa</h2>
-        <p><strong>Nama Desa:</strong> {{ $village->name ?? '-' }}</p>
-        <p><strong>Alamat:</strong> {{ $village->address ?? '-' }}</p>
-        <p><strong>Email:</strong> {{ $village->email ?? '-' }}</p>
-        <p><strong>Telepon:</strong> {{ $village->phone ?? '-' }}</p>
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-home text-green-600 mr-3"></i>
+            Info Desa
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Nama Desa</p>
+                        <p class="text-base font-semibold text-gray-900">{{ $village->name ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Alamat</p>
+                        <p class="text-base text-gray-900">{{ $village->address ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-envelope text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Email</p>
+                        <p class="text-base text-gray-900">{{ $village->email ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-phone text-orange-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Telepon</p>
+                        <p class="text-base text-gray-900">{{ $village->phone ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-globe text-indigo-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Website</p>
+                        <p class="text-base text-gray-900">{{ $village->website ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection 

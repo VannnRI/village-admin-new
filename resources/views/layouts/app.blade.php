@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Sistem Administrasi Desa')</title>
+    <title>@yield('title', 'Platform Administrasi Desa')</title>
+
+    <!-- Alpine.js x-cloak CSS -->
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 
     <!-- Tailwind + FontAwesome + AlpineJS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    @if(config('app.env') === 'production')
+        <!-- Production: Use compiled CSS -->
+        @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @else
+        <!-- Development: Use CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+    @endif
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
 </head>
 <body class="bg-gray-100">
 
@@ -26,14 +36,16 @@
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
                     <i class="fas fa-home text-white text-2xl hidden lg:block"></i>
-                    <h1 class="text-white text-xl font-semibold">Sistem Administrasi Desa</h1>
+                    <h1 class="text-white text-xl font-semibold hidden md:block">Platform Administrasi Desa</h1>
+                    <h1 class="text-white text-lg font-semibold md:hidden">PAD</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-white hidden sm:inline">{{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-white hover:text-gray-200">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                        <button type="submit" class="text-white hover:text-gray-200 flex items-center space-x-1">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="hidden sm:inline">Logout</span>
                         </button>
                     </form>
                 </div>
@@ -81,17 +93,23 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-4 overflow-x-auto">
-            @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
+            <!-- Toast Notification -->
+            <div x-data="{ show: true }" class="fixed top-6 right-6 z-50">
+                @if(session('success'))
+                    <div x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="flex items-center bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg min-w-[320px] max-w-xs" style="box-shadow: 0 8px 24px rgba(0,0,0,0.08)">
+                        <i class="fas fa-check-circle mr-3 text-2xl text-green-500"></i>
+                        <span class="flex-1 font-medium">{{ session('success') }}</span>
+                        <button @click="show = false" class="ml-4 text-green-700 hover:text-green-900 focus:outline-none text-xl">&times;</button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="flex items-center bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-lg min-w-[320px] max-w-xs" style="box-shadow: 0 8px 24px rgba(0,0,0,0.08)">
+                        <i class="fas fa-exclamation-circle mr-3 text-2xl text-red-500"></i>
+                        <span class="flex-1 font-medium">{{ session('error') }}</span>
+                        <button @click="show = false" class="ml-4 text-red-700 hover:text-red-900 focus:outline-none text-xl">&times;</button>
+                    </div>
+                @endif
+            </div>
 
             @yield('content')
         </main>

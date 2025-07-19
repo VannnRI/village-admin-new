@@ -25,9 +25,6 @@ class VillageSeeder extends Seeder
             'website' => 'https://warungering.desa.id',
             'postal_code' => '62272',
             'village_code' => '3524152001',
-            'region_code' => '352415',
-            'letter_code' => 'WAR',
-            'number_format' => '001',
             'is_active' => true,
         ]);
     }

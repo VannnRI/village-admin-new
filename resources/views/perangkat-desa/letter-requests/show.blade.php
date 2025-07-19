@@ -3,14 +3,7 @@
 @section('title', 'Detail Permohonan Surat')
 
 @section('sidebar')
-    <a href="{{ route('perangkat-desa.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-        <i class="fas fa-tachometer-alt mr-3"></i>
-        Dashboard
-    </a>
-    <a href="{{ route('perangkat-desa.letter-requests') }}" class="flex items-center px-4 py-2 text-gray-700 bg-green-100 rounded-lg">
-        <i class="fas fa-envelope mr-3"></i>
-        Permohonan Surat
-    </a>
+    @include('perangkat-desa.partials.sidebar')
 @endsection
 
 @section('content')

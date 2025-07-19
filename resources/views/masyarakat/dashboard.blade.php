@@ -29,10 +29,34 @@
                 <i class="fas fa-home text-green-600 mr-2"></i>
                 Informasi Desa
             </h3>
-            <div class="space-y-2">
-                <p><span class="font-medium">Nama Desa:</span> {{ $village->name ?? '-' }}</p>
-                <p><span class="font-medium">Kecamatan:</span> {{ $village->district ?? '-' }}</p>
-                <p><span class="font-medium">Kabupaten:</span> {{ $village->regency ?? '-' }}</p>
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Nama Desa</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ $village->name ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map text-green-600 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Kecamatan</p>
+                        <p class="text-sm text-gray-900">{{ $village->district ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-building text-purple-600 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Kabupaten</p>
+                        <p class="text-sm text-gray-900">{{ $village->regency ?? '-' }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

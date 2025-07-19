@@ -94,9 +94,12 @@
             }
         </style>
         <script>
-            CKEDITOR.replace('template_html', {
-                updateNotification: false
-            });
+            // Check if CKEditor is already loaded to prevent duplication
+            if (typeof CKEDITOR !== 'undefined') {
+                CKEDITOR.replace('template_html', {
+                    updateNotification: false
+                });
+            }
         </script>
         <div class="mb-6 mt-8 p-4 bg-gray-50 border rounded">
             <b>Daftar Variabel yang Bisa Digunakan di Template Surat:</b>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\LetterRequest;
 use App\Services\LetterGenerationService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -101,5 +102,48 @@ class PerangkatDesaController extends Controller
         $pdf = Pdf::loadHTML($letterContent);
         $filename = 'Surat_' . ($request->letterType->name ?? 'Administrasi') . '_' . $request->citizen->name . '.pdf';
         return $pdf->download($filename);
+    }
+
+    public function profile()
+    {
+        return view('perangkat-desa.profile');
+    }
+
+    public function updateUsername(Request $request)
+    {
+        $request->validate([
+            'new_username' => 'required|string|unique:users,username,' . Auth::id(),
+            'current_password' => 'required'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['username' => $request->new_username]);
+
+        return redirect()->route('perangkat-desa.profile')->with('success', 'Username berhasil diubah');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password_pw' => 'required',
+            'new_password' => 'required|string|min:6|confirmed'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password_pw, $user->password)) {
+            return back()->withErrors(['current_password_pw' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return redirect()->route('perangkat-desa.profile')->with('success', 'Password berhasil diubah');
     }
 } 

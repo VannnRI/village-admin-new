@@ -106,8 +106,67 @@
                     <i class="fas fa-info text-blue-600"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">Selamat datang di sistem administrasi desa</p>
+                    <p class="text-sm font-medium text-gray-900">Selamat datang di platform administrasi desa</p>
                     <p class="text-xs text-gray-500">Mulai kelola data penduduk dan pengajuan surat</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Desa -->
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-home text-green-600 mr-3"></i>
+            Info Desa
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Nama Desa</p>
+                        <p class="text-base font-semibold text-gray-900">{{ $village->name ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-map text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Alamat</p>
+                        <p class="text-base text-gray-900">{{ $village->address ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-envelope text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Email</p>
+                        <p class="text-base text-gray-900">{{ $village->email ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-phone text-orange-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Telepon</p>
+                        <p class="text-base text-gray-900">{{ $village->phone ?? '-' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-globe text-indigo-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Website</p>
+                        <p class="text-base text-gray-900">{{ $village->website ?? '-' }}</p>
+                    </div>
                 </div>
             </div>
         </div>

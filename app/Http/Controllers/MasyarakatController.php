@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Citizen;
 use App\Models\LetterRequest;
 use App\Models\LetterType;
@@ -210,5 +211,43 @@ class MasyarakatController extends Controller
         $newRequest->save();
 
         return redirect()->route('masyarakat.letters.status')->with('success', 'Permohonan surat berhasil diajukan ulang. Silakan cek status surat Anda.');
+    }
+
+    public function updateUsername(Request $request)
+    {
+        $request->validate([
+            'new_username' => 'required|string|unique:users,username,' . Auth::id(),
+            'current_password' => 'required'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['username' => $request->new_username]);
+
+        return redirect()->route('masyarakat.profile')->with('success', 'Username berhasil diubah');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password_pw' => 'required',
+            'new_password' => 'required|string|min:6|confirmed'
+        ]);
+
+        $user = Auth::user();
+        
+        // Verify current password
+        if (!Hash::check($request->current_password_pw, $user->password)) {
+            return back()->withErrors(['current_password_pw' => 'Password saat ini salah.']);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return redirect()->route('masyarakat.profile')->with('success', 'Password berhasil diubah');
     }
 } 

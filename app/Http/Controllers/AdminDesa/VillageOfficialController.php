@@ -17,7 +17,7 @@ class VillageOfficialController extends Controller
         $user = Auth::user();
         $village = $user->villages()->first();
         $officials = VillageOfficial::where('village_id', $village->id)->get();
-        return view('admin-desa.village-officials.index', compact('officials'));
+        return view('admin-desa.village-officials.index', compact('officials', 'village'));
     }
 
     /**
@@ -46,7 +46,7 @@ class VillageOfficialController extends Controller
             'name' => $request->name,
             'nip' => $request->nip,
         ]);
-        return redirect()->route('admin-desa.government-structure')->with('success', 'Perangkat desa berhasil ditambahkan.');
+        return redirect()->route('admin-desa.village-officials.index')->with('success', 'Perangkat desa berhasil ditambahkan.');
     }
 
     /**
@@ -86,7 +86,7 @@ class VillageOfficialController extends Controller
             'name' => $request->name,
             'nip' => $request->nip,
         ]);
-        return redirect()->route('admin-desa.government-structure')->with('success', 'Perangkat desa berhasil diupdate.');
+        return redirect()->route('admin-desa.village-officials.index')->with('success', 'Perangkat desa berhasil diupdate.');
     }
 
     /**
@@ -98,6 +98,6 @@ class VillageOfficialController extends Controller
         $village = $user->villages()->first();
         $official = VillageOfficial::where('village_id', $village->id)->findOrFail($id);
         $official->delete();
-        return redirect()->route('admin-desa.government-structure')->with('success', 'Perangkat desa berhasil dihapus.');
+        return redirect()->route('admin-desa.village-officials.index')->with('success', 'Perangkat desa berhasil dihapus.');
     }
 }

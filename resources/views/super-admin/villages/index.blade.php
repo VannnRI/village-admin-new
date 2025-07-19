@@ -3,25 +3,41 @@
 @section('title', 'Kelola Desa')
 
 @section('sidebar')
-    <a href="{{ route('super-admin.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-        <i class="fas fa-tachometer-alt mr-3"></i>
-        Dashboard
-    </a>
-    <a href="{{ route('super-admin.villages') }}" class="flex items-center px-4 py-2 text-gray-700 bg-green-100 rounded-lg">
-        <i class="fas fa-home mr-3"></i>
-        Kelola Desa
-    </a>
-    <a href="{{ route('super-admin.users') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-        <i class="fas fa-users mr-3"></i>
-        Kelola User
-    </a>
+    @php
+        $user = Auth::user();
+        $currentRoute = request()->route()->getName();
+    @endphp
+    <div class="flex flex-col items-center justify-center py-6 px-2 bg-gradient-to-br from-blue-200 to-green-50 rounded-xl mb-4 shadow">
+        <div class="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center overflow-hidden border-4 border-blue-300 mb-2">
+            <i class="fas fa-user-shield text-blue-500 text-3xl"></i>
+        </div>
+        <div class="text-center">
+            <div class="text-base font-bold text-blue-700">{{ $user->name ?? 'Super Admin' }}</div>
+            <div class="text-xs text-gray-500">Super Admin</div>
+        </div>
+    </div>
+    <nav class="flex flex-col gap-1">
+        <a href="{{ route('super-admin.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 {{ $currentRoute == 'super-admin.dashboard' ? 'bg-blue-100 font-bold shadow' : 'hover:bg-blue-50' }} rounded-lg transition">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Dashboard
+        </a>
+        <a href="{{ route('super-admin.villages') }}" class="flex items-center px-4 py-2 text-gray-700 {{ str_starts_with($currentRoute, 'super-admin.villages') ? 'bg-blue-100 font-bold shadow' : 'hover:bg-blue-50' }} rounded-lg transition">
+            <i class="fas fa-home mr-3"></i>
+            Kelola Desa
+        </a>
+        <a href="{{ route('super-admin.users') }}" class="flex items-center px-4 py-2 text-gray-700 {{ str_starts_with($currentRoute, 'super-admin.users') ? 'bg-blue-100 font-bold shadow' : 'hover:bg-blue-50' }} rounded-lg transition">
+            <i class="fas fa-users mr-3"></i>
+            Kelola User
+        </a>
+    </nav>
 @endsection
 
 @section('content')
+
     <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Kelola Desa</h1>
-            <p class="text-gray-600">Daftar semua desa dalam sistem</p>
+            <p class="text-gray-600">Daftar semua desa dalam platform</p>
         </div>
         <a href="{{ route('super-admin.villages.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
             <i class="fas fa-plus mr-2"></i><span class="hidden sm:inline">Tambah Desa</span><span class="sm:hidden">Tambah</span>
@@ -86,13 +102,13 @@
                                                 <a href="{{ route('super-admin.villages.edit', $village->id) }}" class="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm">
                                                     <i class="fas fa-edit mr-1"></i><span class="hidden sm:inline">Edit</span>
                                                 </a>
-                                                <form action="{{ route('super-admin.villages.delete', $village->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus desa ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900 text-xs sm:text-sm">
-                                                        <i class="fas fa-trash mr-1"></i><span class="hidden sm:inline">Hapus</span>
-                                                    </button>
-                                                </form>
+                                                                                                    <form action="{{ route('super-admin.villages.delete', $village->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus desa ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-900 text-xs sm:text-sm">
+                                                            <i class="fas fa-trash mr-1"></i><span class="hidden sm:inline">Hapus</span>
+                                                        </button>
+                                                    </form>
                                             </div>
                                         </td>
                                     </tr>
@@ -117,4 +133,6 @@
         @endif
         </div>
     </div>
+
+
 @endsection 

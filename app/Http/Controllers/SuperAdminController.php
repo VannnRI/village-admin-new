@@ -174,10 +174,21 @@ class SuperAdminController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        $user->roles()->attach($request->role_id, [
-            'village_id' => $request->village_id,
-            'is_active' => true
-        ]);
+        // Check if this is super admin role
+        $role = Role::find($request->role_id);
+        if ($role && $role->name === 'super_admin') {
+            // Super admin doesn't need village_id
+            $user->roles()->attach($request->role_id, [
+                'village_id' => null,
+                'is_active' => true
+            ]);
+        } else {
+            // Other roles need village_id
+            $user->roles()->attach($request->role_id, [
+                'village_id' => $request->village_id,
+                'is_active' => true
+            ]);
+        }
 
         return redirect()->route('super-admin.users')->with('success', 'User berhasil ditambahkan');
     }
@@ -216,10 +227,22 @@ class SuperAdminController extends Controller
 
         // Update role and village
         $user->roles()->detach();
-        $user->roles()->attach($request->role_id, [
-            'village_id' => $request->village_id,
-            'is_active' => true
-        ]);
+        
+        // Check if this is super admin role
+        $role = Role::find($request->role_id);
+        if ($role && $role->name === 'super_admin') {
+            // Super admin doesn't need village_id
+            $user->roles()->attach($request->role_id, [
+                'village_id' => null,
+                'is_active' => true
+            ]);
+        } else {
+            // Other roles need village_id
+            $user->roles()->attach($request->role_id, [
+                'village_id' => $request->village_id,
+                'is_active' => true
+            ]);
+        }
 
         return redirect()->route('super-admin.users')->with('success', 'User berhasil diperbarui');
     }
@@ -230,5 +253,22 @@ class SuperAdminController extends Controller
         $user->delete();
 
         return redirect()->route('super-admin.users')->with('success', 'User berhasil dihapus');
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Check if user has admin_desa or perangkat_desa role
+        $hasValidRole = $user->roles()->whereIn('name', ['admin_desa', 'perangkat_desa'])->exists();
+        
+        if (!$hasValidRole) {
+            return redirect()->route('super-admin.users')->with('error', 'Hanya admin desa dan perangkat desa yang dapat direset password.');
+        }
+
+        // Reset password to default
+        $user->update(['password' => Hash::make('password123')]);
+
+        return redirect()->route('super-admin.users')->with('success', 'Password berhasil direset menjadi "password123"');
     }
 } 
